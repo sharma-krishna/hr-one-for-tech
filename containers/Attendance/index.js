@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import { Text, View } from 'react-native';
 import {LocaleConfig, Calendar, CalendarList, Agenda} from 'react-native-calendars';
@@ -15,13 +15,13 @@ LocaleConfig.locales['en'] = {
 LocaleConfig.defaultLocale = 'en';
 
 
-export const Attendance = ({attendance,sendAttendance}) => {
-    // console.log("I am here in app above loadAttendence")
-    // loadAttendance(attendance);
-    // console.log('i want to print attendance',attendance)
-    sendAttendance(attendance)
-    const getWorkTime = (day)=>{
-      console.log("in get work time");
+export class Attendance extends Component{
+    componentDidMount() {
+      this.props.sendAllAttendance();
+    }
+    
+    render(){
+      const getWorkTime = (day)=>{
       if(day['punchIn'] !== null && day['punchOut'] !== null){
         return (parseInt(day['punchOut'].split(":")[0]*60)+parseInt(day['punchOut'].split(":")[1]))-(parseInt((day['punchIn'].split(":")[0]*60))+parseInt(day['punchIn'].split(":")[1]))
       }
@@ -36,8 +36,8 @@ export const Attendance = ({attendance,sendAttendance}) => {
     let attendenceMarkObject = {}
     const addAttendence = () =>{
       console.log("in add attendance")
-      console.log(attendance)
-      attendance.forEach(day =>{
+      console.log(this.props.attendance)
+      this.props.attendance.forEach(day =>{
         let employeeWorkTime = getWorkTime(day)
 
         if(employeeWorkTime === Infinity){
@@ -55,37 +55,39 @@ export const Attendance = ({attendance,sendAttendance}) => {
       })
       return attendenceMarkObject;
     }
-    return(
-        <View style = {styles.container}>
-            <Calendar
-                currentDate={Date()}
-                minDate={'2019-07-01'}
-                onDayPress={(day) => {console.log('selected day', day)}}
-                onDayLongPress={(day) => {console.log('selected day', day)}}
-                onMonthChange={(month) => {console.log('month changed', month)}}
-                hideArrows={false}
-                hideExtraDays={true}
-                disableMonthChange={true}
-                markedDates={addAttendence()}
-                firstDay={1}
-                onPressArrowLeft={substractMonth => substractMonth()}
-                onPressArrowRight={addMonth => addMonth()}
-            />
-        </View>
-    );
+      return(
+          <View style = {styles.container}>
+              <Calendar
+                  currentDate={Date()}
+                  minDate={'2019-07-01'}
+                  onDayPress={(day) => {console.log('selected day', day)}}
+                  onDayLongPress={(day) => {console.log('selected day', day)}}
+                  onMonthChange={(month) => {console.log('month changed', month)}}
+                  hideArrows={false}
+                  hideExtraDays={true}
+                  disableMonthChange={true}
+                  markedDates={addAttendence()}
+                  firstDay={1}
+                  onPressArrowLeft={substractMonth => substractMonth()}
+                  onPressArrowRight={addMonth => addMonth()}
+              />
+          </View>
+      );
+    }
 }
 
-// Attendance.propTypes = {
-//   attendance: PropTypes.object,
-// };
+Attendance.propTypes = {
+  attendance: PropTypes.array,
+  sendAllAttendance: PropTypes.func,
+};
 
 const mapStateToProps = (state) => ({
-    attendance:state.attendance,
+    attendance: state.attendance,
 })
 
 const mapDispatchToProps = function (dispatch) {
     return {
-        sendAttendance:() => dispatch(sendAttendance()),
+        sendAllAttendance: () => dispatch(sendAttendance()),
         loadAttendance: (attendance) => dispatch(loadAttendance(attendance)),
     }
   }
