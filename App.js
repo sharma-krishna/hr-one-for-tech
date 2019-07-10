@@ -13,7 +13,7 @@ import { connect } from 'react-redux';
 const sagaMiddleware = createSagaMiddleware();
 const store = createStore(
   attendanceReducer,
-  applyMiddleware(sagaMiddleware, logger),
+  applyMiddleware(sagaMiddleware),
 );
 sagaMiddleware.run(rootSaga);
 

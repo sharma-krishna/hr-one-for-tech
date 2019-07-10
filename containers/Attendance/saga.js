@@ -1,5 +1,6 @@
 import { put, takeLatest,all} from 'redux-saga/effects';
-import {loadAttendance} from './action'
+import {loadAttendance, sendAttendance} from './action';
+import {SEND_ATTENDANCE} from './constant';
 
 export function* getAllAttendance(){
     const data = [
@@ -58,9 +59,10 @@ export function* getAllAttendance(){
 
 function* actionWatcher() {
     console.log("in action watcher")
-    yield takeLatest('ATTENDANCE', getAllAttendance)
+    yield takeLatest(SEND_ATTENDANCE, getAllAttendance)
 }
 export default function* rootSaga() {
+    console.log("i am in root saga")
   yield all([
   actionWatcher(),
   ]);

@@ -5,7 +5,7 @@ import {LocaleConfig, Calendar, CalendarList, Agenda} from 'react-native-calenda
 import styles from './style.js';
 import {present, absent, halfDay, workOff, FULL_DAY_TIME, HALF_DAY_TIME, WORK_OFF_DAYS} from './constant'
 import { connect } from 'react-redux';
-import {loadAttendance} from './action';
+import {loadAttendance, sendAttendance} from './action';
 import { compose } from 'redux';
 
 LocaleConfig.locales['en'] = {
@@ -15,11 +15,11 @@ LocaleConfig.locales['en'] = {
 LocaleConfig.defaultLocale = 'en';
 
 
-export const Attendance = ({attendance}) => {
+export const Attendance = ({attendance,sendAttendance}) => {
     // console.log("I am here in app above loadAttendence")
     // loadAttendance(attendance);
     // console.log('i want to print attendance',attendance)
-    
+    sendAttendance(attendance)
     const getWorkTime = (day)=>{
       console.log("in get work time");
       if(day['punchIn'] !== null && day['punchOut'] !== null){
@@ -85,7 +85,8 @@ const mapStateToProps = (state) => ({
 
 const mapDispatchToProps = function (dispatch) {
     return {
-        loadAttendance:(attendance) => dispatch(loadAttendance(attendance)),
+        sendAttendance:() => dispatch(sendAttendance()),
+        loadAttendance: (attendance) => dispatch(loadAttendance(attendance)),
     }
   }
 
