@@ -52,10 +52,12 @@ export function* getAllAttendance(){
             'punchOut': null,
         },
     ]
+    console.log("Hi i am in saga");
     yield put(loadAttendance(data));
 }
 
 function* actionWatcher() {
+    console.log("in action watcher")
     yield takeLatest('ATTENDANCE', getAllAttendance)
 }
 export default function* rootSaga() {
