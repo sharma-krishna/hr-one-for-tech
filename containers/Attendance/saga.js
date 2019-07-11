@@ -52,19 +52,39 @@ export function* getAllAttendance(){
             'punchIn': null,
             'punchOut': null,
         },
+        {
+            'date': '2019-07-09',
+            'day': 'tues',
+            'punchIn': '11:00',
+            'punchOut': null,
+        },
+        {
+            'date': '2019-07-10',
+            'day': 'wed',
+            'punchIn': null,
+            'punchOut': '19:45',
+        },
+        {
+            'date': '2019-07-11',
+            'day': 'thurs',
+            'punchIn': '09:00',
+            'punchOut': '19:45',
+        },
+        {
+            'date': '2019-07-12',
+            'day': 'fri',
+            'punchIn': null,
+            'punchOut': null,
+        },
     ]
-    console.log("Hi i am in saga");
     yield put(loadAttendance(data));
 }
 
 function* actionWatcher() {
-    console.log("in action watcher")
     yield takeLatest(SEND_ATTENDANCE, getAllAttendance)
 }
 export default function* rootSaga() {
-    console.log("i am in root saga")
   yield all([
   actionWatcher(),
   ]);
 }
-// yield takeLatest(ATTENDANCE,getAllAttendance)

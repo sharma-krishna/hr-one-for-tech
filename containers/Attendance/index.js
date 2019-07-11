@@ -7,6 +7,7 @@ import {present, absent, halfDay, workOff, FULL_DAY_TIME, HALF_DAY_TIME, WORK_OF
 import { connect } from 'react-redux';
 import {loadAttendance, sendAttendance} from './action';
 import { compose } from 'redux';
+import DetailBox from '../../components/DetailBox';
 
 LocaleConfig.locales['en'] = {
   monthNames: ['January','February','March','April','May','June','July','August','September','October','November','December'],
@@ -19,59 +20,81 @@ export class Attendance extends Component{
     componentDidMount() {
       this.props.sendAllAttendance();
     }
+
+    state = {
+      active: false,
+      day: []
+    }
     
     render(){
       const getWorkTime = (day)=>{
-      if(day['punchIn'] !== null && day['punchOut'] !== null){
-        return (parseInt(day['punchOut'].split(":")[0]*60)+parseInt(day['punchOut'].split(":")[1]))-(parseInt((day['punchIn'].split(":")[0]*60))+parseInt(day['punchIn'].split(":")[1]))
+        if(day['punchIn'] !== null && day['punchOut'] !== null){
+          return (parseInt(day['punchOut'].split(":")[0]*60)+parseInt(day['punchOut'].split(":")[1]))-(parseInt((day['punchIn'].split(":")[0]*60))+parseInt(day['punchIn'].split(":")[1]))
+        }
+        else if (WORK_OFF_DAYS.includes(day['day'])){
+          return Infinity
+        }
+        else{
+          return 0;
+        }
       }
-      else if (WORK_OFF_DAYS.includes(day['day'])){
-        return Infinity
-      }
-      else{
-        return 0;
-      }
-    }
      
-    let attendenceMarkObject = {}
-    const addAttendence = () =>{
-      console.log("in add attendance")
-      console.log(this.props.attendance)
-      this.props.attendance.forEach(day =>{
-        let employeeWorkTime = getWorkTime(day)
+      let attendenceMarkObject = {}
+      const addAttendence = () =>{
+        this.props.attendance.forEach(day =>{
+          let employeeWorkTime = getWorkTime(day)
 
-        if(employeeWorkTime === Infinity){
-          attendenceMarkObject = {...attendenceMarkObject,[day['date']]:workOff}
-        }
-        else if(employeeWorkTime >= FULL_DAY_TIME){
-          attendenceMarkObject = {...attendenceMarkObject,[day['date']]:present}
-        }
-        else if (employeeWorkTime >= HALF_DAY_TIME && employeeWorkTime < FULL_DAY_TIME){
-          attendenceMarkObject = {...attendenceMarkObject,[day['date']]:halfDay}
-        }
-        else {
-          attendenceMarkObject = {...attendenceMarkObject,[day['date']]:absent}
-        }
-      })
-      return attendenceMarkObject;
-    }
+          if(employeeWorkTime === Infinity){
+            attendenceMarkObject = {...attendenceMarkObject,[day['date']]:workOff}
+          }
+          else if(employeeWorkTime >= FULL_DAY_TIME){
+            attendenceMarkObject = {...attendenceMarkObject,[day['date']]:present}
+          }
+          else if (employeeWorkTime >= HALF_DAY_TIME && employeeWorkTime < FULL_DAY_TIME){
+            attendenceMarkObject = {...attendenceMarkObject,[day['date']]:halfDay}
+          }
+          else {
+            attendenceMarkObject = {...attendenceMarkObject,[day['date']]:absent}
+          }
+        })
+        return attendenceMarkObject;
+      }
+
+      const handlePress = (day) => {
+        console.log(day)
+        const obj = this.props.attendance.filter(att => day.dateString == att.date)
+        console.log(obj)
+        this.setState(state => {
+          state.active = true
+          state.day = obj
+          return state
+        })
+      }
+
       return(
-          <View style = {styles.container}>
-              <Calendar
-                  currentDate={Date()}
-                  minDate={'2019-07-01'}
-                  onDayPress={(day) => {console.log('selected day', day)}}
-                  onDayLongPress={(day) => {console.log('selected day', day)}}
-                  onMonthChange={(month) => {console.log('month changed', month)}}
-                  hideArrows={false}
-                  hideExtraDays={true}
-                  disableMonthChange={true}
-                  markedDates={addAttendence()}
-                  firstDay={1}
-                  onPressArrowLeft={substractMonth => substractMonth()}
-                  onPressArrowRight={addMonth => addMonth()}
-              />
-          </View>
+        <View style = {styles.container}>
+          <Calendar
+            minDate={'2019-07-01'}
+            maxDate = {Date()}
+            onDayPress={(day) => handlePress(day)}
+            onDayLongPress={(day) => {console.log('selected day', day)}}
+            onMonthChange={(month) => {console.log('month changed', month)}}
+            hideArrows={false}
+            hideExtraDays={true}
+            disableMonthChange={true}
+            markedDates={addAttendence()}
+            firstDay={1}
+            onPressArrowLeft={substractMonth => substractMonth()}
+            onPressArrowRight={addMonth => addMonth()}
+          />
+
+          {this.state.active ? (
+            <DetailBox 
+              selectedDate = {this.state.day[0]}
+            />
+          ) : null}
+
+        </View>
       );
     }
 }

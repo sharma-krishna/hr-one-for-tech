@@ -7,7 +7,6 @@ export function loadAttendance(data) {
   };
 }
 export function sendAttendance(){
-  console.log("in action send attendance")
   return {
     type: SEND_ATTENDANCE,
   };
